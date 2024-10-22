@@ -1,35 +1,56 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState } from 'react';
+import Menu from './Menu';
+import Order from './Orden';
+import Payment from './Pago';
+import './App.css'; // Asegúrate de tener este archivo
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [order, setOrder] = useState([]);
+  const [paid, setPaid] = useState(false);
+
+  const handleAddToOrder = (item) => {
+    const existingItem = order.find((orderItem) => orderItem.id === item.id);
+    if (existingItem) {
+      setOrder(
+        order.map((orderItem) =>
+          orderItem.id === item.id
+            ? { ...orderItem, cantidad: orderItem.cantidad + 1 }
+            : orderItem
+        )
+      );
+    } else {
+      setOrder([...order, { ...item, cantidad: 1 }]);
+    }
+  };
+
+  const handlePago = () => {
+    setPaid(true); // Actualiza el estado para marcar como pagado
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="app-container">
+      <h1>Sistema de Restaurante</h1>
+      <div className="grid-container">
+        <div className="menu-container">
+          <Menu onAddToOrder={handleAddToOrder} />
+        </div>
+        <div className="order-container">
+          {!paid ? (
+            <>
+              <Order order={order} />
+              {order.length > 0 && (
+                <button className="pay-button" onClick={handlePago}>
+                  Pagar
+                </button>
+              )}
+            </>
+          ) : (
+            <Payment order={order} setOrder={setOrder} />
+          )}
+        </div>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;
